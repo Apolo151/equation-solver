@@ -10,7 +10,7 @@ class EquationSolver:
             'sqrt': math.sqrt
         }
         
-    def solve(self, func1_str, func2_str, x_range=(-10, 10), num_guesses=50):
+    def solve(self, func1_str, func2_str, x_range=(-10, 10), num_guesses=100):
         """
         Find intersection points between two functions
         
@@ -38,7 +38,7 @@ class EquationSolver:
                     x = sol[0][0]
                     # Verify solution is within range and not duplicate
                     if (x_range[0] <= x <= x_range[1] and 
-                        not any(np.isclose(x, s, atol=1e-3) for s in solutions)):
+                        not any(np.isclose(x, s, atol=1e-5) for s in solutions)):
                         solutions.append(round(x, 5))
             except:
                 continue

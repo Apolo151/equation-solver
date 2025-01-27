@@ -4,9 +4,6 @@ from parser.parser import Parser
 from solver.solver import EquationSolver
 from plotter.plotter import FunctionPlotter
 
-# Uncomment and import once implemented
-# from plotter.function_plotter import FunctionPlotter
-# from solver.equation_solver import EquationSolver
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -53,12 +50,6 @@ class MainWindow(QMainWindow):
 
         # Right side - Plot canvas
         right_widget = QWidget()
-        # Placeholder for plot canvas
-        # Once implemented, replace with self.plotter.canvas
-        # self.plot_placeholder = QLabel("Plot will appear here")
-        # right_layout = QVBoxLayout()
-        # right_layout.addWidget(self.plot_placeholder)
-        # right_widget.setLayout(right_layout)
         right_layout = QVBoxLayout()
         right_layout.addWidget(self.plotter.canvas)
         right_widget.setLayout(right_layout)
@@ -78,13 +69,6 @@ class MainWindow(QMainWindow):
         # Clear error lists
         self.func1_errors.clear()
         self.func2_errors.clear()
-
-        # Validate inputs and populate error lists if necessary
-        # Example validation (replace with actual validation logic)
-        if not func1:
-            self.func1_errors.addItem("Function 1 is empty")
-        if not func2:
-            self.func2_errors.addItem("Function 2 is empty")
 
         # Parse and validate Function 1
         parsed_func1, errors1 = self.parser.parse(func1)
@@ -109,7 +93,7 @@ class MainWindow(QMainWindow):
                 self.func1_errors.addItem("Plotting error")
                 self.func2_errors.addItem(str(e))
 
-# Example usage
+
 if __name__ == "__main__":
     import sys
     from PySide2.QtWidgets import QApplication

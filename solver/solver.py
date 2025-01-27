@@ -1,46 +1,57 @@
-import numpy as np
-from scipy.optimize import fsolve
-import math
+import sympy as sp
+from typing import List, Tuple
 
 class EquationSolver:
     def __init__(self):
-        self.safe_dict = {
-            'math': math,
-            'log10': math.log10,
-            'sqrt': math.sqrt
+        self.x = sp.Symbol('x')
+        self.safe_functions = {
+            'log10': sp.log,
+            'sqrt': sp.sqrt,
+            'sin': sp.sin,
+            'cos': sp.cos,
+            'tan': sp.tan,
         }
         
-    def solve(self, func1_str, func2_str, x_range=(-10, 10), num_guesses=100):
+    def solve(self, func1_str: str, func2_str: str, x_range: Tuple[float, float] = (-10, 10)
+              ) -> List[float]:
         """
-        Find intersection points between two functions
+        Find intersection points between two functions using SymPy
         
         Args:
-            func1_str (str): Validated function 1 string
-            func2_str (str): Validated function 2 string
+            func1_str (str): First function string
+            func2_str (str): Second function string
             x_range (tuple): Search range for solutions
-            num_guesses (int): Number of initial guesses
+            num_guesses (int): Not used with sympy implementation
             
         Returns:
-            list: x-values of intersection points
+            list: x-values of intersection points within range
         """
-        # Create lambda functions with safe evaluation
-        f1 = lambda x: eval(func1_str, {"__builtins__": None}, {**self.safe_dict, "x": x})
-        f2 = lambda x: eval(func2_str, {"__builtins__": None}, {**self.safe_dict, "x": x})
-        diff = lambda x: f1(x) - f2(x)
+        # Convert strings to sympy expressions
+        try:
+            f1 = sp.sympify(func1_str, locals=self.safe_functions)
+            f2 = sp.sympify(func2_str, locals=self.safe_functions)
+        except sp.SympifyError:
+            return []
 
-        solutions = []
-        x_guesses = np.linspace(x_range[0], x_range[1], num_guesses)
-        
-        for guess in x_guesses:
+        # Create equation f1 - f2 = 0
+        equation = f1 - f2
+
+        # Solve symbolically
+        try:
+            solutions = sp.solve(equation, self.x)
+        except sp.PolynomialError:
+            # Fall back to numerical solving for non-polynomial equations
+            solutions = sp.nsolve(equation, self.x, 0, verify=False)
+
+        # Convert to float and filter solutions
+        valid_solutions = []
+        for sol in solutions:
             try:
-                sol = fsolve(diff, guess, full_output=True)
-                if sol[2] == 1:  # Check if solution converged
-                    x = sol[0][0]
-                    # Verify solution is within range and not duplicate
-                    if (x_range[0] <= x <= x_range[1] and 
-                        not any(np.isclose(x, s, atol=1e-5) for s in solutions)):
-                        solutions.append(round(x, 5))
-            except:
+                x_val = float(sol.evalf())
+                if (x_range[0] <= x_val <= x_range[1] and 
+                    not any(abs(x_val - s) < 1e-5 for s in valid_solutions)):
+                    valid_solutions.append(round(x_val, 5))
+            except (TypeError, ValueError):
                 continue
 
-        return sorted(list(set(solutions)))
+        return sorted(valid_solutions)

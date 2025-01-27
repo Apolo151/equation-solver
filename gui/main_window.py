@@ -1,6 +1,8 @@
 from PySide2.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QLineEdit, QPushButton, QLabel, QListWidget, QHBoxLayout, QGroupBox, QFormLayout
 from PySide2.QtCore import QSize
 from parser.parser import Parser
+from solver.solver import EquationSolver
+from plotter.plotter import FunctionPlotter
 
 # Uncomment and import once implemented
 # from plotter.function_plotter import FunctionPlotter
@@ -11,8 +13,8 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Function Solver and Plotter")
         self.parser = Parser()  # Initialize parser
-        # self.solver = EquationSolver()
-        # self.plotter = FunctionPlotter()
+        self.solver = EquationSolver()
+        self.plotter = FunctionPlotter()
 
         # Main layout
         main_layout = QHBoxLayout()
@@ -53,9 +55,12 @@ class MainWindow(QMainWindow):
         right_widget = QWidget()
         # Placeholder for plot canvas
         # Once implemented, replace with self.plotter.canvas
-        self.plot_placeholder = QLabel("Plot will appear here")
+        # self.plot_placeholder = QLabel("Plot will appear here")
+        # right_layout = QVBoxLayout()
+        # right_layout.addWidget(self.plot_placeholder)
+        # right_widget.setLayout(right_layout)
         right_layout = QVBoxLayout()
-        right_layout.addWidget(self.plot_placeholder)
+        right_layout.addWidget(self.plotter.canvas)
         right_widget.setLayout(right_layout)
         main_layout.addWidget(right_widget, 1)  # Stretch factor 1
 
@@ -91,13 +96,18 @@ class MainWindow(QMainWindow):
         for error in errors2:
             self.func2_errors.addItem(error)
 
-        # Parse functions if inputs are not empty
-        #self.parser.parse(func1)
-        #self.parser.parse(func2)
-
         # Proceed to solve and plot if inputs are valid
-        # solutions = self.solver.solve(func1, func2)
-        # self.plotter.plot(func1, func2, solutions)
+        if not errors1 and not errors2:
+            try:
+                solutions = self.solver.solve(parsed_func1, parsed_func2)
+                if solutions:
+                    self.plotter.plot(parsed_func1, parsed_func2, solutions)
+                else:
+                    self.plotter.plot(parsed_func1, parsed_func2)
+                    self.func1_errors.addItem("No intersections found")
+            except Exception as e:
+                self.func1_errors.addItem("Plotting error")
+                self.func2_errors.addItem(str(e))
 
 # Example usage
 if __name__ == "__main__":

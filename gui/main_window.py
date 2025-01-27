@@ -1,5 +1,6 @@
 from PySide2.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QLineEdit, QPushButton, QLabel, QListWidget, QHBoxLayout, QGroupBox, QFormLayout
 from PySide2.QtCore import QSize
+from parser.parser import Parser
 
 # Uncomment and import once implemented
 # from plotter.function_plotter import FunctionPlotter
@@ -9,6 +10,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Function Solver and Plotter")
+        self.parser = Parser()  # Initialize parser
         # self.solver = EquationSolver()
         # self.plotter = FunctionPlotter()
 
@@ -78,6 +80,16 @@ class MainWindow(QMainWindow):
             self.func1_errors.addItem("Function 1 is empty")
         if not func2:
             self.func2_errors.addItem("Function 2 is empty")
+
+        # Parse and validate Function 1
+        parsed_func1, errors1 = self.parser.parse(func1)
+        for error in errors1:
+            self.func1_errors.addItem(error)
+
+        # Parse and validate Function 2
+        parsed_func2, errors2 = self.parser.parse(func2)
+        for error in errors2:
+            self.func2_errors.addItem(error)
 
         # Parse functions if inputs are not empty
         #self.parser.parse(func1)

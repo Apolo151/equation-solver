@@ -3,13 +3,22 @@ import math
 
 class Parser:
     def __init__(self):
-        self.allowed_chars = r"x0-9+\-*/().^ log10sqrt "
+        # Define allowed characters and supported operations
+        self.allowed_chars = r"x0-9+\-*/().^ log10sqrt"
         self.supported_ops = ["+", "-", "*", "/", "^", "log10", "sqrt"]
+        self.safe_dict = {
+            "math": math,
+            "log10": math.log10,
+            "sqrt": math.sqrt,
+        }
 
     def parse(self, func_str):
         """Parse and validate a function string."""
         errors = []
         parsed_func = func_str.strip()
+
+        # Remove whitespace
+        parsed_func = parsed_func.replace(" ", "")
 
         # Check for empty input
         if not parsed_func:
@@ -28,17 +37,26 @@ class Parser:
             errors.append("Mismatched parentheses.")
 
         # Detect unsupported operations
-        if "log(" in parsed_func or "ln(" in parsed_func:
-            errors.append("Only log10() is supported.")
+        unsupported_ops = re.findall(r"(log\(|ln\(|sin\(|cos\(|tan\()", parsed_func)
+        if unsupported_ops:
+            errors.append(f"Unsupported operations detected: {', '.join(set(unsupported_ops))}")
         
-        # Validate function syntax (example)
+        if errors:
+            return None, errors
+
+        # Validate function syntax
         try:
+            # Preprocess log10 and sqrt to use math functions
+            parsed_test = re.sub(r"log10\(", "math.log10(", parsed_func)
+            parsed_test = re.sub(r"sqrt\(", "math.sqrt(", parsed_test)
             # Test evaluation with x=1 (dummy check)
             x = 1
-            y = eval(parsed_func, {"math": math}, {"x": x})
-            print("func: ", parsed_func)
-            print("res: ", y)
+            eval(parsed_test, {"__builtins__": None}, {**self.safe_dict, "x": x})
+            print("func", parsed_test)
         except Exception as e:
             errors.append(f"Invalid syntax: {str(e)}")
+            print("func", parsed_test)
 
+
+        # Return parsed function and errors
         return parsed_func, errors

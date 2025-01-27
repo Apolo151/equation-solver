@@ -1,5 +1,5 @@
 import pytest
-from parser import Parser
+from parser.parser import Parser
 
 def test_valid_function():
     parser = Parser()

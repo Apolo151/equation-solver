@@ -1,6 +1,6 @@
 import pytest
 import math
-from solver import EquationSolver
+from solver.solver import EquationSolver
 
 @pytest.fixture
 def solver():

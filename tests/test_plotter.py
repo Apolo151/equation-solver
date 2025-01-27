@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from plotter import FunctionPlotter
+from plotter.plotter import FunctionPlotter
 
 @pytest.fixture
 def plotter():

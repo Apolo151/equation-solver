@@ -29,3 +29,7 @@ python app.py # or python3 app.py
 1. Enter the two equations in the input fields
 2. Click on the "Solve and Plot" button to solve the equations
 3. The solutions will be displayed in the output plot
+
+**Example**
+
+![example image](./docs/image.png)

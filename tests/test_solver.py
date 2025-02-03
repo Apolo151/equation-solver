@@ -7,146 +7,103 @@ from solver.solver import EquationSolver
 def solver():
     return EquationSolver()
 
-# Main Cases
-def test_linear_intersection(solver):
-    """Test intersection of linear functions."""
-    f1 = "x"
-    f2 = "2*x-1"
-    solutions = solver.solve(f1, f2)
-    assert len(solutions) == 1
-    assert math.isclose(solutions[0], 1.0, rel_tol=1e-3)
+# Core functionality tests
+def test_symbolic_polynomial_solution(solver):
+    """Test exact symbolic solution for polynomial equation"""
+    solutions = solver.solve("x**2 - 4", "0", (-5, 5))
+    assert sorted(solutions) == pytest.approx([-2.0, 2.0])
 
-def test_quadratic_intersection(solver):
-    """Test intersection of quadratic and linear functions."""
-    f1 = "x**2"
-    f2 = "x"
-    solutions = solver.solve(f1, f2)
-    assert len(solutions) == 2
+def test_numerical_fallback(solver):
+    """Test numerical fallback for non-symbolic solution"""
+    solutions = solver.solve("sin(x)", "x/2", (-5, 5))
+    expected = [-1.895494, 0.0, 1.895494]
+    assert solutions == pytest.approx(expected, rel=1e-4)
+
+def test_mixed_symbolic_numeric(solver):
+    """Test combination of symbolic and numeric roots"""
+    solutions = solver.solve("x*(sin(x)-0.5)", "0", (-5, 5))
     assert 0.0 in solutions
-    assert 1.0 in solutions
+    assert any(abs(s - math.pi/6) < 0.01 for s in solutions)
 
-def test_logarithmic_intersection(solver):
-    """Test intersection involving logarithmic functions."""
-    f1 = "log10(x)"
-    f2 = "0"
-    solutions = solver.solve(f1, f2, x_range=(0.1, 10))
+# Edge case tests
+def test_asymptotic_behavior(solver):
+    """Test function with vertical asymptote"""
+    solutions = solver.solve("1/(x-1)", "1", (-2, 2))
+    assert solutions == pytest.approx([2.0])
+
+# Precision and numerical stability tests
+def test_near_zero_solutions(solver):
+    """Test solutions near zero"""
+    solutions = solver.solve("1e-8*x", "1e-8", (-1, 1))
+    assert solutions == pytest.approx([1.0])
+
+def test_extreme_value_range(solver):
+    """Test large value handling"""
+    solutions = solver.solve("1e-15*x", "1e-15", (-1e20, 1e20))
+    assert solutions == pytest.approx([1.0])
+
+def test_solution_deduplication(solver):
+    """Test solution cleaning logic"""
+    raw = [0.0, 0.0, 1.0000001, 1.0000002, 2.0]
+    cleaned = solver._clean_solutions(raw, (-5, 5))
+    assert cleaned == pytest.approx([0.0, 1.0, 2.0])
+
+# Special function tests
+def test_composite_function(solver):
+    """Test nested function solution with sqrt and log10"""
+    solutions = solver.solve("sqrt(log10(x + 1))", "0.5 * x", (0, 5))
+    
     assert len(solutions) == 1
-    assert math.isclose(solutions[0], 1.0, rel_tol=1e-3)
+    for s in solutions:
+        # Ensure x + 1 > 0 for log10
+        assert s + 1 > 0
+        # Check if sqrt(log10(x + 1)) == 0.5 * x
+        assert np.isclose(
+            math.sqrt(math.log10(s + 1)), 
+            0.5 * s, 
+            atol=1e-6
+        )
 
-def test_no_solutions(solver):
-    """Test case where no intersections exist."""
-    f1 = "x + 2"
-    f2 = "x + 5"
-    solutions = solver.solve(f1, f2)
+def test_logarithmic_identity(solver):
+    """Test log10 implementation"""
+    solutions = solver.solve("log10(x)", "2", (1, 1000))
+    assert solutions == pytest.approx([100.0])
+
+# Boundary condition tests
+def test_range_exclusion(solver):
+    """Test solution filtering by range"""
+    solutions = solver.solve("x", "0", (1, 10))
     assert len(solutions) == 0
 
-# Edge Cases
-def test_division_by_zero(solver):
-    """Test handling of division by zero."""
-    f1 = "1/x"
-    f2 = "0"
-    solutions = solver.solve(f1, f2, x_range=(-2, 2))
+def test_boundary_solutions(solver):
+    """Test solutions at range boundaries"""
+    solutions = solver.solve("(x-1)*(x-5)", "0", (1, 5))
+    assert sorted(solutions) == pytest.approx([1.0, 5.0])
+
+# Error condition tests
+def test_invalid_equation(solver):
+    """Test invalid input handling"""
+    with pytest.raises(NameError):
+        solver.solve("invalid_function(x)", "0", (-10, 10))
+
+def test_non_real_solutions(solver):
+    """Test filtering of complex roots"""
+    solutions = solver.solve("x**2 + 1", "0", (-5, 5))
     assert len(solutions) == 0
 
-def test_large_exponents(solver):
-    """Test intersection with large exponents."""
-    f1 = "x**10"
-    f2 = "x**5"
-    solutions = solver.solve(f1, f2, x_range=(-10, 10))
-    assert len(solutions) == 2
-    assert 0.0 in solutions
-    assert 1.0 in solutions
+# Performance stress tests
+def test_high_degree_polynomial(solver):
+    """Test 10th-degree polynomial solution"""
+    coeffs = np.poly(np.arange(1, 11))
+    poly_expr = "+".join(f"({c}*x**{i})" 
+                       for i, c in enumerate(coeffs[::-1]))
+    solutions = solver.solve(poly_expr, "0", (-15, 15))
+    assert len(solutions) == 10
+    assert all(np.isclose(np.polyval(coeffs, s), 0, atol=1e-6) 
+               for s in solutions)
 
-def test_constant_functions(solver):
-    """Test intersection of constant functions."""
-    f1 = "5"
-    f2 = "5"
-    solutions = solver.solve(f1, f2)
-    assert len(solutions) == 0  # Parallel lines, no intersection
-
-def test_identical_functions(solver):
-    """Test intersection of identical functions."""
-    f1 = "x**2"
-    f2 = "x**2"
-    solutions = solver.solve(f1, f2)
-    assert len(solutions) == 0  # Infinite intersections, treated as no unique solution
-
-def test_nested_functions(solver):
-    """Test intersection involving nested functions."""
-    f1 = "log10(sqrt(x))"
-    f2 = "0"
-    solutions = solver.solve(f1, f2, x_range=(-5, 5))
-    assert len(solutions) > 0  # At least one intersection exists
-
-def test_invalid_input(solver):
-    """Test handling of invalid input."""
-    f1 = "invalid_function(x)"
-    f2 = "x"
-    with pytest.raises(Exception):
-        solver.solve(f1, f2)
-
-def test_large_x_range(solver):
-    """Test intersection over a large x-range."""
-    f1 = "x**3"
-    f2 = "x"
-    solutions = solver.solve(f1, f2, x_range=(-100, 100))
-    assert len(solutions) == 3
-    assert -1.0 in solutions
-    assert 0.0 in solutions
-    assert 1.0 in solutions
-
-def test_multiple_roots(solver):
-    """Test intersection with multiple roots."""
-    f1 = "x**3 - 6*x**2 + 11*x - 6"
-    f2 = "0"
-    solutions = solver.solve(f1, f2, x_range=(-10, 10))
-    assert len(solutions) == 3
-    assert 1.0 in solutions
-    assert 2.0 in solutions
-    assert 3.0 in solutions
-
-def test_asymptotic_functions(solver):
-    """Test intersection of functions with asymptotes."""
-    f1 = "1/(x-1)"
-    f2 = "1/(x+1)"
-    solutions = solver.solve(f1, f2, x_range=(-10, 10))
-    assert len(solutions) == 0  # No intersection due to asymptotes
-
-def test_complex_functions(solver):
-    """Test intersection of complex functions."""
-    f1 = "x**2"
-    f2 = "E**x"
-    solutions = solver.solve(f1, f2, x_range=(-1, 1))
-    print(solutions)
-    assert len(solutions) == 1
-
-def test_zero_crossings(solver):
-    """Test intersection at zero crossings."""
-    f1 = "x"
-    f2 = "-x"
-    solutions = solver.solve(f1, f2)
-    assert len(solutions) == 1
-    assert 0.0 in solutions
-
-def test_near_misses(solver):
-    """Test functions that nearly intersect but don't."""
-    f1 = "x + 0.0001"
-    f2 = "x"
-    solutions = solver.solve(f1, f2)
-    assert len(solutions) == 0  # No intersection due to slight offset
-
-def test_large_coefficients(solver):
-    """Test intersection with large coefficients."""
-    f1 = "1e6*x"
-    f2 = "1e6*x + 1"
-    solutions = solver.solve(f1, f2)
-    assert len(solutions) == 0  # Parallel lines, no intersection
-
-def test_small_coefficients(solver):
-    """Test intersection with small coefficients."""
-    f1 = "0.00001*x"
-    f2 = "0.00001*x**2"
-    solutions = solver.solve(f1, f2)
-    assert len(solutions) == 2
-    assert 0.0 in solutions
-    assert 1.0 in solutions
+def test_extreme_density_requirements(solver):
+    """Test adaptive sampling with sharp features"""
+    solver.numeric_density = 5000  # Points per unit
+    solutions = solver.solve("tan(x)", "1e6*(x % 0.000001)", (-1, 1))
+    assert len(solutions) > 100

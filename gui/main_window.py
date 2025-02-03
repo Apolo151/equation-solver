@@ -1,4 +1,4 @@
-from PySide2.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QLineEdit, QPushButton, QLabel, QListWidget, QHBoxLayout, QGroupBox, QFormLayout
+from PySide2.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QLineEdit, QPushButton, QLabel, QListWidget, QHBoxLayout, QGroupBox
 from PySide2.QtCore import QSize
 from parser.parser import Parser
 from solver.solver import EquationSolver
@@ -9,6 +9,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Function Solver and Plotter")
+        self.valid_ops = ['+', '-', '*', '/', '^', 'log10', 'sqrt']
         self.parser = Parser()  # Initialize parser
         self.solver = EquationSolver()
         self.plotter = FunctionPlotter()
@@ -16,9 +17,53 @@ class MainWindow(QMainWindow):
         # Main layout
         main_layout = QHBoxLayout()
 
-        # Left side - Input forms and error lists
+        # Left side - valid ops, Input forms and error lists
+
+        # Input forms
         left_widget = QWidget()
         left_layout = QVBoxLayout()
+
+        # Valid operations label
+        # valid_ops_label = QLabel("Valid operations: " + ", ".join(self.valid_ops))
+        # #valid_ops_label.alignment = 0
+        # left_layout.addWidget(valid_ops_label)
+         # Operations row
+                # Operations section container
+        ops_section = QWidget()
+        ops_section_layout = QHBoxLayout()
+
+        # Add "Supported Operations" label
+        ops_title = QLabel("Supported Operations:")
+        ops_title.setStyleSheet("""
+            QLabel {
+                font-weight: bold;
+                margin-right: 0px;
+            }
+        """)
+        ops_section_layout.addWidget(ops_title)
+
+        # Operations row
+        ops_container = QWidget()
+        ops_layout = QHBoxLayout()
+        
+        for op in self.valid_ops:
+            op_label = QLabel(op)
+            op_label.setStyleSheet("""
+                QLabel {
+                    background-color: #f0f0f0;
+                    border: 1px solid #999;
+                    border-radius: 3px;
+                    padding: 3px 5px;
+                    margin: 0 2px;
+                }
+            """)
+            ops_layout.addWidget(op_label)
+        
+        ops_container.setLayout(ops_layout)
+        ops_section_layout.addWidget(ops_container)
+        ops_layout.addStretch()
+        ops_section.setLayout(ops_section_layout)
+        left_layout.addWidget(ops_section)
 
         # Function 1 GroupBox
         func1_group = QGroupBox("Function 1")

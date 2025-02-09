@@ -1,0 +1,76 @@
+name: Run Tests and Publish Desktop App
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  release:
+    types: [created]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set Up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Tests
+        run: pytest --cov=solver --cov=parser
+
+  build:
+    needs: test
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set Up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt pyinstaller
+
+      - name: Build Executable
+        run: |
+          pyinstaller --onefile --name equation-solver main.py
+        shell: bash
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: equation-solver-${{ runner.os }}
+          path: dist/equation-solver*
+
+  release:
+    needs: build
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: dist
+
+      - name: Publish Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*/equation-solver*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

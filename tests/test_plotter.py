@@ -1,10 +1,14 @@
 import pytest
 import numpy as np
-import matplotlib
-import math
+import matplotlib.pyplot as plt
 from plotter.plotter import FunctionPlotter
 
-matplotlib.use("Agg")  # Ensure tests run without a GUI
+#matplotlib.use("Agg")  # Ensure tests run without a GUI
+
+
+@pytest.fixture(autouse=True)
+def mock_show(monkeypatch):
+    monkeypatch.setattr(plt, "show", lambda: None)  # Disable plt.show()
 
 @pytest.fixture
 def plotter():

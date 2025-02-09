@@ -87,7 +87,7 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            dist/windows-exe/equation-solver.exe
-            dist/linux-bin/equation-solver
+            dist/equation-solver-windows.exe
+            dist/equation-solver-linux
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

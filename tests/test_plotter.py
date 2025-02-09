@@ -1,7 +1,10 @@
 import pytest
 import numpy as np
+import matplotlib
 import math
 from plotter.plotter import FunctionPlotter
+
+matplotlib.use("Agg")  # Ensure tests run without a GUI
 
 @pytest.fixture
 def plotter():

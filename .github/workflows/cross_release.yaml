@@ -49,7 +49,7 @@ jobs:
 
       - name: Build Executable
         run: |
-          pyinstaller --onefile --name equation-solver main.py
+          pyinstaller --onefile --name equation-solver app.py
         shell: bash
 
       - name: Upload Artifact

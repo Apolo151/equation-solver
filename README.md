@@ -1,13 +1,38 @@
-# equation-solver
-A graphical program to solve simple mathematical equations.
+# Equation Solver 📈
+
+[![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+A graphical program to solve mathematical equations and visualize their intersections through plotting.
 Takes as input two equations of `x`, solves them, and plots the equations with their solutions.
 
 
-- Supported Operations
-`+ - / * ^ log10() sqrt()`
+## Features ✨
+- Graphical user interface (GUI) with input validation
+- Supports equation solving and intersection point detection
+- Interactive matplotlib plots embedded in the GUI
+- Error handling with user-friendly messages
+- Cross-platform compatibility (Windows/Linux)
 
-## Requirements
-- Python 3.6 or higher (Python 3.10 recommended)
+## Supported Operations 🔢
+| Operation      | Symbol/Function | Example           |
+|----------------|-----------------|-------------------|
+| Addition       | `+`             | `x + 3`           |
+| Subtraction    | `-`             | `5 - x`           |
+| Multiplication | `*`             | `2 * x`           |
+| Division       | `/`             | `x / 4`           |
+| Exponentiation | `^`             | `x^2`             |
+| Square root    | `sqrt()`        | `sqrt(x + 1)`     |
+| Logarithm base10| `log10()`       | `log10(2*x)`      |
+
+
+## Requirements 📋
+- Python 3.10+ (recommended)
+- PySide2 (GUI framework)
+- Matplotlib (Plotting)
+- NumPy (Numerical operations)
+- SciPy (Equation solving)
+- SymPy (Symbolic mathematics)
 
 ## Installation
 1. Clone the repository

@@ -23,7 +23,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run Tests
-        run: pytest --cov=solver --cov=parser
+        run: pytest --cov=solver --cov=parser --cov=plotter
 
   build:
     needs: test

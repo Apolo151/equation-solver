@@ -23,7 +23,7 @@ jobs:
         run: pip install -r requirements.txt
       
       - name: Set Matplotlib Backend
-        run: echo "MPLBACKEND=Agg" >> $GITHUB_ENV
+        run: echo "MPLBACKEND=TkAgg" >> $GITHUB_ENV
 
       - name: Debug Matplotlib Backend
         run: python -c "import matplotlib; print(matplotlib.get_backend())"

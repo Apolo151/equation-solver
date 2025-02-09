@@ -54,7 +54,7 @@ jobs:
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             mv dist/equation-solver.exe equation-solver-windows.exe
           else
-            mv dist/equation-solver equation-solver-linux
+            mv dist/equation-solver equation-solver-ubuntu-22.04
           fi
         shell: bash
 
@@ -85,7 +85,7 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            dist/equation-solver-Linux/equation-solver-linux
+            dist/equation-solver-Linux/equation-solver-ubuntu-22.04
             dist/equation-solver-Windows/equation-solver-windows.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}

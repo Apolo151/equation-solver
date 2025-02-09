@@ -22,11 +22,8 @@ jobs:
       - name: Install Dependencies
         run: pip install -r requirements.txt
 
-      - name: Install Xvfb for GUI tests
-        run: sudo apt-get install -y xvfb
-
-      - name: Run Tests in Virtual Display
-        run: xvfb-run --auto-servernum pytest --cov=solver --cov=parser --cov=plotter
+      - name: Run Tests
+        run: pytest --cov=solver --cov=parser --cov=plotter
 
   build:
     needs: test

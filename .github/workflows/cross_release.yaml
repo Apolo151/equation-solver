@@ -21,6 +21,10 @@ jobs:
 
       - name: Install Dependencies
         run: pip install -r requirements.txt
+      
+      - name: Set Matplotlib Backend
+        run: echo "MPLBACKEND=Agg" >> $GITHUB_ENV
+
 
       - name: Run Tests
         run: pytest --cov=solver --cov=parser --cov=plotter

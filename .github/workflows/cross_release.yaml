@@ -53,7 +53,7 @@ jobs:
         shell: bash
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: equation-solver-${{ runner.os }}
           path: dist/equation-solver*
